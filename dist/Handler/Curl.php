@@ -28,8 +28,23 @@ class Curl
 	/** @var resource Curl handler */
 	private $ch = null;
 
+	/** @var string Returned response */
+	private $response = '';
+
+	/** @var int Returned error number */
+	private $errno = 0;
+
+	/** @var int Returned error label */
+	private $error = '';
+
 	/** @var int Returned httpcode */
 	private $httpcode = 0;
+
+	/** @var int Returned header size */
+	private $headerSize = 0;
+
+	/** @var string Returned effective url */
+	private $effectiveUrl = '';
 
 	/**
 	 * Curl constructor.
@@ -65,19 +80,19 @@ class Curl
 	{
 		$retries = abs($retries);
 		while ($retries--) {
-			if (false === curl_exec($this->ch)) {
-				$errno = curl_errno($this->ch);
-
-				if (!in_array($errno, self::RETRIABLE_ERROR_CODES, true) || !$retries) {
-					$error = curl_error($this->ch);
+			$this->response = curl_exec($this->ch);
+			$this->headerSize = (int) curl_getinfo($this->ch,CURLINFO_HEADER_SIZE);
+			$this->httpcode = (int) curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
+			$this->effectiveUrl = (string) curl_getinfo($this->ch,CURLINFO_EFFECTIVE_URL);
+			$this->errno = curl_errno($this->ch);
+			$this->error = curl_error($this->ch);
+			if (false === $this->response) {
+				if (!$retries || !in_array($this->errno, self::RETRIABLE_ERROR_CODES, true)) {
 					curl_close($this->ch);
-					throw new Exception("Curl error (code $errno): $error");
+					break;
 				}
-
 				continue;
 			}
-
-			$this->httpcode = (int) curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 			curl_close($this->ch);
 			break;
 		}
@@ -92,5 +107,65 @@ class Curl
 	public function getHttpCode(): int
 	{
 		return $this->httpcode;
+	}
+
+	/**
+	 * Full response
+	 *
+	 * @return string
+	 */
+	public function getResponse(): string
+	{
+		return (string) $this->response;
+	}
+
+	/**
+	 * Response header
+	 *
+	 * @return string
+	 */
+	public function getHeader(): string
+	{
+		return substr($this->getResponse(), 0, $this->headerSize);
+	}
+
+	/**
+	 * Response body
+	 *
+	 * @return string
+	 */
+	public function getBody(): string
+	{
+		return substr($this->getResponse(), $this->headerSize);
+	}
+
+	/**
+	 * Response effective url
+	 *
+	 * @return string
+	 */
+	public function getEffectiveUrl(): string
+	{
+		return $this->effectiveUrl;
+	}
+
+	/**
+	 * Error message
+	 *
+	 * @return string
+	 */
+	public function getError(): string
+	{
+		return $this->error;
+	}
+
+	/**
+	 * Error number
+	 *
+	 * @return int
+	 */
+	public function getErrno(): int
+	{
+		return $this->errno;
 	}
 }
