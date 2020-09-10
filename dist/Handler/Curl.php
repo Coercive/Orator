@@ -63,6 +63,7 @@ class Curl
 	 */
 	public function execute(int $retries = 3): Curl
 	{
+		$retries = abs($retries);
 		while ($retries--) {
 			if (false === curl_exec($this->ch)) {
 				$errno = curl_errno($this->ch);
