@@ -64,7 +64,7 @@ class Curl
 	 */
 	public function __destruct()
 	{
-		if($this->ch) {
+		if($this->ch && gettype($this->ch) === 'resource') {
 			curl_close($this->ch);
 		}
 	}
