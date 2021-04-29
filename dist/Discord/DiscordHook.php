@@ -199,7 +199,7 @@ class DiscordHook
 	 */
 	public function publish(): DiscordHook
 	{
-		if($this->state && $this->endpoint && $this->content || $this->embeds) {
+		if($this->state && $this->endpoint && ($this->content || $this->embeds)) {
 			$this->send();
 		}
 		return $this;
