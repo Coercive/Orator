@@ -48,3 +48,33 @@ $discord->addEmbed($embed1);
 $discord->addEmbed($embed2);
 $discord->publish();
 ```
+
+Log
+---
+Example of basic config
+```php
+L::detectLogpath();
+L::basepath('/root/path/to/my/project');
+L::header('prod', 'myproject', 'coercive', '•••');
+L::colorizeLevel();
+```
+
+And then, you can log something
+```php
+
+# Log by level (debug, error, fatal, info, warning)
+L::info('Hello! This is an info log!');
+L::warning('Hello! This is a warning log!');
+
+# Log mixed data
+L::debug([
+    'example',
+    'data',
+    'to',
+    'log'
+]);
+
+# Add separator
+L::separator();
+L::rainbow();
+```
