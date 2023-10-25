@@ -5,32 +5,32 @@ Simple handlers for Slack and Discord webhooks.
 
 Get
 ---
-```
+```shell
 composer require coercive/orator
 ```
 
 Slack
 -----
-```
+```php
 $slack = new SlackHook(HOOKS_SLACK_URL);
 $slack->publish('Hello!');
 ```
 
 Discord
 -------
-```
+```php
 $discord = new DiscordHook(HOOKS_DISCORD_URL);
 $discord->setContent('Hello!');
 $discord->publish();
 ```
 
 Vocalize text ?
-```
+```php
 $discord->setTts(true);
 ```
 
 Advanced embed content
-```
+```php
 # Simple content
 $embed1 = new Embed('Light', 'This is white colored', '#FFFFFF');
 
