@@ -739,4 +739,45 @@ class L
 		}
 		self::log($l);
 	}
+
+	/**
+	 * Log colorized SQL query
+	 *
+	 * @param string $query
+	 * @return void
+	 */
+	static public function sql(string $query)
+	{
+		$query = self::colorize($query, [
+				self::FOREGROUND_COLOR_WHITE,
+			]) . ' ';
+
+		$query = preg_replace_callback('`(?P<before>\s*)(?P<q>SELECT|DELETE|INSERT|UPDATE|SHOW|FROM|WHERE|AND|OR|SET|INTO)(?P<after>\s+)`i', function ($matches) {
+			return $matches['before'] . self::colorize($matches['q'], [
+					self::BOLD,
+					self::FOREGROUND_COLOR_LIGHT_YELLOW,
+				]) . $matches['after'];
+		}, $query);
+
+		$query = preg_replace_callback('#(?P<before>\s*)(?P<q>`[`a-z\d\._-]+`)(?P<after>\s+)#i', function ($matches) {
+			return $matches['before'] . self::colorize($matches['q'], [
+					self::BOLD,
+					self::FOREGROUND_COLOR_LIGHT_MAGENTA,
+				]) . $matches['after'];
+		}, $query);
+
+		$query = preg_replace_callback('`(?P<before>(?:\s|\033)=(?:\s|\033))(?P<q>(?:\'[^\']+\')|(?:"[^"]+"))(?P<after>(?:\s|\033))`i', function ($matches) {
+			return $matches['before'] . self::colorize($matches['q'], [
+					self::FOREGROUND_COLOR_LIGHT_GREEN,
+				]) . $matches['after'];
+		}, $query);
+
+		$query = preg_replace_callback('`(?P<before>(?:\s|\033)=(?:\s|\033))(?P<q>\d+)(?P<after>(?:\s|\033))`i', function ($matches) {
+			return $matches['before'] . self::colorize($matches['q'], [
+					self::FOREGROUND_COLOR_LIGHT_CYAN,
+				]) . $matches['after'];
+		}, $query);
+
+		self::info("SQL QUERY\r\n$query\r\n");
+	}
 }
